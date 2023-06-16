@@ -1,13 +1,14 @@
 use std::cell::RefCell;
+use std::rc::Rc;
 
-struct Master <'a> {
-    slaves: RefCell<Option<Vec<Box<Slave<'a>>>>>,
+struct Master {
+    slaves: RefCell<Option<Vec<Rc<Slave>>>>,
     report: RefCell<String>
 }
 
-impl <'a> Master<'a> {
+impl Master {
 
-    fn new() -> Master<'a> {
+    fn new() -> Master {
         Master {
             slaves: RefCell::new(None),
             report: RefCell::new(String::new())
@@ -19,20 +20,24 @@ impl <'a> Master<'a> {
         z.push_str(a);
     }
 
-    fn set_slaves(&self, slaves: Vec<Box<Slave<'a>>>) {
+    fn print_report(&self) {
+        println!("{}", self.report.borrow());
+    }
+
+    fn set_slaves(&self, slaves: Vec<Rc<Slave>>) {
         self.slaves.replace(Some(slaves));
     }
 
 }
 
-struct Slave <'a> {
+struct Slave {
     name: String,
-    master: &'a Master<'a>
+    master: Rc<Master>
 }
 
-impl <'a> Slave<'a> {
+impl Slave {
     
-    fn new(name: String, master: &'a Master<'a>) -> Slave<'a> {
+    fn new(name: String, master: Rc<Master>) -> Slave {
         Slave {
             name: name,
             master: master
@@ -43,26 +48,32 @@ impl <'a> Slave<'a> {
         for i in 0..i {
         }
         println!("Reporting...");
-        self.master.declare(&format!("Reached {}", i.to_string()));
+        self.master.declare(&format!("Reached {}\n", i.to_string()));
     }
 
 }
 
 pub fn run() {
-    let master = Master::new();
-    let v = vec!(
-        Box::new(Slave {
-            name: "bob".to_string(),
-            master: &master
-        }),
-        Box::new(Slave {
+    // Using a cycle reference to create a ManyToMany struct relationship
+    // Note: The memory for all Master and Slave instances is freed for all if and only if all go out of scope.
+    let master = Rc::new(Master::new());
+    let slave1 = Rc::new(Slave {
+        name: "bob".to_string(),
+        master: master.clone()
+    });
+    let  slave2 = Rc::new(Slave {
             name: "charlie".to_string(),
-            master: &master
-        })
+            master: master.clone()
+    });
+
+    let v = vec!(
+        slave1.clone(), 
+        slave2.clone()
     );
 
     master.set_slaves(v);
-
-
+    slave1.work(6);
+    slave2.work(3);
+    master.print_report();
 }
 

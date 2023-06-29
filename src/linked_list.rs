@@ -50,7 +50,28 @@ impl<T> LinkedList<T> {
 
     pub fn pop() {} // Extend from delete
 
-    pub fn delete(&mut self, i: usize) {}
+    pub fn delete(&mut self, i: usize) {
+        if i >= self.length {
+            panic!("LinkedList: index out of range!");
+        }
+        if self.length == 0 {
+            panic!("LinkedList: Cannot delete elements from an empty LinkedList!");
+        }
+        
+        if i == 0 {
+            let f = self.head_node.as_mut().unwrap().next_node.take();
+            self.head_node = f;
+        }
+        else {
+            let mut current = self.head_node.as_mut().unwrap(); // Panicked earlier anyway
+            for _ in 0..i {
+                current = current.next_node.as_mut().unwrap();
+            }
+            let follow = current.next_node.as_mut().unwrap().next_node.take();
+            current.next_node = follow;
+        }
+        self.length -= 1
+    }
 
     pub fn insert(&mut self, data: T, i: usize) {
         if i >= self.length {

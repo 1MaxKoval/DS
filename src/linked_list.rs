@@ -6,7 +6,7 @@ struct Node<T> {
 
 struct LinkedList<T> {
     head_node: Option<Box<Node<T>>>,
-    length: usize
+    pub length: usize
 }
 
 impl<T> LinkedList<T> {
@@ -23,16 +23,25 @@ impl<T> LinkedList<T> {
     }
 
     pub fn push(&mut self, data: T) { // TODO: Combine push and add_node functions!
-        let n = Node {
+        let new_node = Node {
             value: data,
             next_node: Option::None
         };
         match &mut self.head_node {
             Some(node) => {
-                Self::add_node(node, n);
+                let mut prev = node;
+                loop {
+                    let next_node = &mut prev.next_node;
+                    if let Some(node) = next_node {
+                        prev = node;
+                    } else {
+                        *next_node = Some(Box::new(new_node));
+                        break;
+                    }
+                }
             },
             None => {
-                self.head_node = Some(Box::new(n));
+                self.head_node = Some(Box::new(new_node));
             }
         }
         self.length += 1;
@@ -43,7 +52,16 @@ impl<T> LinkedList<T> {
             panic!("LinkedList: index out of range!")
         }
         match &self.head_node {
-            Some(node) => { &Self::get_node(node, i).value }
+            Some(node) => { 
+                let mut prev = node;
+                for _ in 0..(i+1) {
+                    match &prev.next_node {
+                        Some(node) => prev = node,
+                        None => return &prev.value
+                    }
+                }
+                &prev.value
+            }
             None => { panic!("No elements present in the linked list!") }
         }
     }
@@ -98,33 +116,6 @@ impl<T> LinkedList<T> {
 
         self.length += 1;
     }
-
-    fn add_node(head_node: &mut Node<T>, new_node: Node<T>) {
-        // Assumes head_node exists
-        let mut prev = head_node;
-        loop {
-            let next_node = &mut prev.next_node;
-            if let Some(node) = next_node {
-                prev = node;
-            } else {
-                *next_node = Some(Box::new(new_node));
-                break;
-            }
-        }
-    }
-
-    fn get_node(head_node: &Node<T>, i: usize) -> &Node<T> {
-        // Assumes head_node exists
-        let mut prev = head_node;
-        for _ in 0..(i+1) {
-            match &prev.next_node {
-                Some(node) => prev = node,
-                None => return prev
-            }
-        }
-        prev
-    }
-
 
 }
 

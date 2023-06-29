@@ -4,6 +4,7 @@ use master_slave::run;
 use linked_list::LinkedList;
 
 fn main() {
+    linked_list();
 }
 
 fn linked_list() {

@@ -21,7 +21,9 @@ impl fmt::Display for LinkedList<String> {
         let mut current = &self.head_node;
         let mut r = "".to_string();
         while let Some(node) = current {
-            r.push_str(&format!("{},", node));
+            if let Some(_) = &node.next_node {
+                r.push_str(&format!(" {},", node));
+            } else { r.push_str(&format!(" {} ", node)); }
             current = &node.next_node;
         }
         write!(f, "[{}]", r)

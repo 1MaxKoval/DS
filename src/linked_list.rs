@@ -1,12 +1,31 @@
+use std::fmt;
 
 struct Node<T> {
     value: T,
     next_node: Option<Box<Node<T>>>
 }
 
+impl fmt::Display for Node<String> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({})", self.value)
+    }
+}
+
 struct LinkedList<T> {
     head_node: Option<Box<Node<T>>>,
     pub length: usize
+}
+
+impl fmt::Display for LinkedList<String> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut current = &self.head_node;
+        let mut r = "".to_string();
+        while let Some(node) = current {
+            r.push_str(&format!("{},", node.value));
+            current = &node.next_node;
+        }
+        write!(f, "[{}]", r)
+    }
 }
 
 impl<T> LinkedList<T> {
@@ -22,7 +41,7 @@ impl<T> LinkedList<T> {
         }
     }
 
-    pub fn push(&mut self, data: T) { // TODO: Combine push and add_node functions!
+    pub fn push(&mut self, data: T) { 
         let new_node = Node {
             value: data,
             next_node: Option::None
@@ -66,7 +85,13 @@ impl<T> LinkedList<T> {
         }
     }
 
-    pub fn pop() {} // Extend from delete
+    pub fn pop(&mut self) {
+        if self.length == 0 {
+            return;
+        } else {
+            self.delete(self.length);
+        }
+    }
 
     pub fn delete(&mut self, i: usize) {
         if i >= self.length {

@@ -11,7 +11,7 @@ impl fmt::Display for Node<String> {
     }
 }
 
-struct LinkedList<T> {
+pub struct LinkedList<T> {
     head_node: Option<Box<Node<T>>>,
     pub length: usize
 }
@@ -21,7 +21,7 @@ impl fmt::Display for LinkedList<String> {
         let mut current = &self.head_node;
         let mut r = "".to_string();
         while let Some(node) = current {
-            r.push_str(&format!("{},", node.value));
+            r.push_str(&format!("{},", node));
             current = &node.next_node;
         }
         write!(f, "[{}]", r)
@@ -89,7 +89,7 @@ impl<T> LinkedList<T> {
         if self.length == 0 {
             return;
         } else {
-            self.delete(self.length);
+            self.delete(self.length - 1);
         }
     }
 
@@ -107,7 +107,7 @@ impl<T> LinkedList<T> {
         }
         else {
             let mut current = self.head_node.as_mut().unwrap(); // Panicked earlier anyway
-            for _ in 0..i {
+            for _ in 1..i {
                 current = current.next_node.as_mut().unwrap();
             }
             let follow = current.next_node.as_mut().unwrap().next_node.take();
@@ -131,7 +131,7 @@ impl<T> LinkedList<T> {
         }
         else {
             let mut current = self.head_node.as_mut().unwrap(); // Panicked earlier anyway
-            for _ in 0..i {
+            for _ in 1..i {
                 current = current.next_node.as_mut().unwrap();
             }
             let n = current.next_node.take();
